@@ -215,6 +215,7 @@ export const getTxData = async (
 export const placeDcaOrder = async (
   order: OrderSubmission,
   slippage: BigNumber,
+  gasPrice: BigNumber,
   signer: Signer
 ): Promise<{ txData: TransactionDataWithSecret; tx: TransactionResponse }> => {
   if (!signer.provider) throw new TypeError("Provider undefined");
@@ -225,6 +226,7 @@ export const placeDcaOrder = async (
     to: txData.txData.to,
     data: txData.txData.data,
     value: txData.txData.value,
+    gasPrice: gasPrice,
   });
 
   return {
@@ -240,6 +242,7 @@ export const placeDcaOrder = async (
 export const cancelDcaOrder = async (
   cycle: OrderCycle,
   id: BigNumber,
+  gasPrice: BigNumber,
   signer: Signer
 ): Promise<ContractTransaction> => {
   if (!signer.provider)
@@ -247,7 +250,9 @@ export const cancelDcaOrder = async (
 
   const gelatoDca = await getGelatoDca(signer);
 
-  return gelatoDca.connect(signer).cancel(cycle, id);
+  return gelatoDca.connect(signer).cancel(cycle, id, {
+    gasPrice: gasPrice,
+  });
 };
 
 export const getCancelLimitOrderPayload = async (
@@ -339,9 +344,7 @@ export const getOrdersArray = (
   order: OrderSubmission,
   user: string,
   witness: string,
-  submissionHash: string,
-  storeInLocalStorage: boolean,
-  chainId: number
+  submissionHash: string
 ): LocalOrder[] => {
   const submissionDate = Math.floor(Date.now() / 1000).toString();
   const orders = [];
@@ -378,8 +381,17 @@ export const getOrdersArray = (
         },
       },
     };
-    if (storeInLocalStorage) saveOrder(user, localOrder, chainId);
     orders.push(localOrder);
   }
   return orders;
+};
+
+export const storeOrdersInLocalStorage = (
+  orders: LocalOrder[],
+  user: string,
+  chainId: number
+): void => {
+  orders.forEach((localOrder) => {
+    saveOrder(user, localOrder, chainId);
+  });
 };

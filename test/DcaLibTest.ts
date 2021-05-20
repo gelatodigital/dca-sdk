@@ -187,7 +187,12 @@ describe("Test DCA Lib", async function () {
   it("#4: Place and cancel with state writing functions", async function () {
     // await outToken.approve(gelatoDca.address, amountPerTrade.mul(numTrades));
 
-    const { tx } = await placeDcaOrder(orderOne, slippage, userWallet);
+    const { tx } = await placeDcaOrder(
+      orderOne,
+      slippage,
+      ethers.utils.parseUnits("10", "gwei"),
+      userWallet
+    );
     await expect(tx).to.emit(gelatoDca, "LogTaskSubmitted");
 
     const block = await userWallet.provider?.getBlock("latest");
@@ -228,9 +233,13 @@ describe("Test DCA Lib", async function () {
       platformFeeBps: order.platformFeeBps,
     };
 
-    await expect(cancelDcaOrder(cycle, event.args.id, userWallet)).to.emit(
-      gelatoDca,
-      "LogTaskCancelled"
-    );
+    await expect(
+      cancelDcaOrder(
+        cycle,
+        event.args.id,
+        ethers.utils.parseUnits("10", "gwei"),
+        userWallet
+      )
+    ).to.emit(gelatoDca, "LogTaskCancelled");
   });
 });
