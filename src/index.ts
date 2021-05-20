@@ -5,7 +5,7 @@ import {
   ContractTransaction,
   Signer,
   utils,
-  Wallet
+  Wallet,
 } from "ethers";
 import { DEXs, ETH_ADDRESS, WETH_ADDRESS } from "./constants";
 import { GelatoDca } from "./contracts/types";
@@ -16,7 +16,7 @@ import {
   getExecutedOrders,
   getOpenOrders,
   getOrders,
-  getPastOrders
+  getPastOrders,
 } from "./query/orders";
 import {
   Order,
@@ -24,7 +24,7 @@ import {
   OrderSubmission,
   TransactionData,
   TransactionDataWithSecret,
-  WitnessAndSecret
+  WitnessAndSecret,
 } from "./types";
 
 //#region Limit Orders Submission
