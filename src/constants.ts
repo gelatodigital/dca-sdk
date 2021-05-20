@@ -1,4 +1,5 @@
 export const ETH_ADDRESS = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
+export const WETH_ADDRESS = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
 //export const MATIC_ADDRESS = "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0";
 
 export const isNetworkGasToken = (token: string): boolean => {
@@ -9,78 +10,44 @@ export const isNetworkGasToken = (token: string): boolean => {
   }
 };
 
-export const MAINNET_GELATOPINECORE =
-  "0x36049D479A97CdE1fC6E2a5D2caE30B666Ebf92B";
-export const MAINNET_LIMIT_ORDER_MODULE =
-  "0x037fc8e71445910e1E0bBb2a0896d5e9A7485318";
+export enum DEXs {
+  KYBER,
+  UNI,
+  SUSHI,
+}
+
+export const MAINNET_DCA = "0x1338548a1a6Ec68277496a710815D76A02838216";
 export const MAINNET_SUBGRAPH_URL =
-  "https://api.thegraph.com/subgraphs/name/gelatodigital/limit-orders";
+  "https://api.thegraph.com/subgraphs/name/gelatodigital/gelato-dca";
 
-export const MATIC_GELATOPINECORE =
-  "0x38c4092b28dAB7F3d98eE6524549571c283cdfA5";
-export const MATIC_LIMIT_ORDER_MODULE =
-  "0x5A36178E38864F5E724A2DaF5f9cD9bA473f7903";
-export const MATIC_SUBGRAPH_URL =
-  "https://api.thegraph.com/subgraphs/name/gelatodigital/limit-orders-polygon";
+export const ROPSTEN_DCA = "0x8E9918Fc02826aa2283f890F6cE439085c615665";
 
-export const ROPSTEN_GELATOPINECORE =
-  "0x0e5096D201Fe2985f5C26432A76f145D6e5D1453";
-export const ROPSTEN_LIMIT_ORDER_MODULE =
-  "0x3f3C13b09B601fb6074124fF8D779d2964caBf8B";
 export const ROPSTEN_SUBGRAPH_URL =
-  "https://api.thegraph.com/subgraphs/name/gelatodigital/limit-orders-ropsten";
+  "https://api.thegraph.com/subgraphs/name/gelatodigital/gelato-dca-ropsten";
 
-export const getGelatoPineCoreAddr = (chainId: number): string => {
+export const getDcaAddr = (chainId: number): string => {
   switch (chainId) {
     case 1: {
-      return MAINNET_GELATOPINECORE;
+      return MAINNET_DCA;
     }
     case 3: {
-      return ROPSTEN_GELATOPINECORE;
+      return ROPSTEN_DCA;
     }
     case 4: {
-      throw new Error("GelatoPineCore is not available on Rinkeby");
+      throw new Error("GelatoDca is not available on Rinkeby");
     }
     case 5: {
-      throw new Error("GelatoPineCore is not available on Görli");
+      throw new Error("GelatoDca is not available on Görli");
     }
     case 42: {
-      throw new Error("GelatoPineCore is not available on Kovan");
-    }
-    case 137: {
-      return MATIC_GELATOPINECORE;
+      throw new Error("GelatoDca is not available on Kovan");
     }
     case 80001: {
-      throw new Error("GelatoPineCore is not available on Mumbai");
+      throw new Error("GelatoDca is not available on Mumbai");
     }
-    default: {
-      throw new Error("NETWORK NOT SUPPORTED");
-    }
-  }
-};
-
-export const getLimitOrderModuleAddr = (chainId: number): string => {
-  switch (chainId) {
-    case 1: {
-      return MAINNET_LIMIT_ORDER_MODULE;
-    }
-    case 3: {
-      return ROPSTEN_LIMIT_ORDER_MODULE;
-    }
-    case 4: {
-      throw new Error("Gelato Limit Orders not available on Rinkeby");
-    }
-    case 5: {
-      throw new Error("Gelato Limit Orders not available on Görli");
-    }
-    case 42: {
-      throw new Error("Gelato Limit Orders not available on Kovan");
-    }
-    case 137: {
-      return MATIC_LIMIT_ORDER_MODULE;
-    }
-    case 80001: {
-      throw new Error("Gelato Limit Orders is not available on Mumbai");
+    // Mainnet Hardhat fork
+    case 31337: {
+      return MAINNET_DCA;
     }
     default: {
       throw new Error("NETWORK NOT SUPPORTED");
@@ -106,10 +73,13 @@ export const getSubgraphUrl = (chainId: number): string => {
       throw new Error("Subgraph not available on Kovan");
     }
     case 137: {
-      return MATIC_SUBGRAPH_URL;
+      throw new Error("Subgraph not available on Matic");
     }
     case 80001: {
       throw new Error("Subgraph is not available on Mumbai");
+    }
+    case 31337: {
+      return MAINNET_SUBGRAPH_URL;
     }
     default: {
       throw new Error("NETWORK NOT SUPPORTED");
@@ -140,8 +110,56 @@ export const getNetworkName = (chainId: number): string => {
     case 80001: {
       return "mumbai";
     }
+    case 31337: {
+      return "hardhat";
+    }
     default: {
       throw new Error("NETWORK NOT SUPPORTED");
     }
   }
+};
+
+export const WETH = {
+  "1": {
+    decimals: 18,
+    symbol: "WETH",
+    name: "Wrapped Ether",
+    chainId: 1,
+    address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  },
+  "3": {
+    decimals: 18,
+    symbol: "WETH",
+    name: "Wrapped Ether",
+    chainId: 3,
+    address: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
+  },
+  "4": {
+    decimals: 18,
+    symbol: "WETH",
+    name: "Wrapped Ether",
+    chainId: 4,
+    address: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
+  },
+  "5": {
+    decimals: 18,
+    symbol: "WETH",
+    name: "Wrapped Ether",
+    chainId: 5,
+    address: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
+  },
+  "42": {
+    decimals: 18,
+    symbol: "WETH",
+    name: "Wrapped Ether",
+    chainId: 42,
+    address: "0xd0A1E359811322d97991E03f863a0C30C2cF029C",
+  },
+  "31337": {
+    decimals: 18,
+    symbol: "WETH",
+    name: "Wrapped Ether",
+    chainId: 31337,
+    address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  },
 };

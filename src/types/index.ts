@@ -4,6 +4,7 @@ export interface TransactionData {
   to: string;
   data: BytesLike;
   value: BigNumber;
+  gasLimit: BigNumber;
 }
 
 export interface TransactionDataWithSecret {
@@ -17,15 +18,67 @@ export interface WitnessAndSecret {
   secret: string;
 }
 
+export interface OrderSubmission {
+  inToken: string;
+  outToken: string;
+  amountPerTrade: BigNumber;
+  numTrades: BigNumber;
+  delay: BigNumber;
+  platformWallet: string;
+  platformFeeBps: BigNumber;
+  minSlippage: BigNumber;
+  maxSlippage: BigNumber;
+}
+
+export interface OrderCycle {
+  user: string;
+  inToken: string;
+  outToken: string;
+  amountPerTrade: number;
+  nTradesLeft: number;
+  minSlippage: number;
+  maxSlippage: number;
+  delay: number;
+  lastExecutionTime: number;
+  platformWallet: string;
+  platformFeeBps: number;
+}
+
 export interface Order {
-  id: number;
-  inputToken: string;
-  outputToken: string;
-  inputAmount: BigNumber;
-  minReturn: BigNumber;
-  bought: BigNumber;
+  id: string;
+  user: string;
   status: string;
-  cancelledTxHash: BytesLike;
-  executedTxHash: BytesLike;
-  updatedAt: string;
+  submissionDate: number;
+  submissionHash: BytesLike;
+  estExecutionDate: number;
+  executionDate: number;
+  executionHash: BytesLike;
+  amountReceived: number;
+  executor: string;
+  executorFee: number;
+  feeToken: string;
+  inToken: string;
+  outToken: string;
+  amount: number;
+  index: number;
+  witness: string;
+  cycleWrapper: {
+    id: string;
+    status: string;
+    startDate: number;
+    numTrades: number;
+    cycle: {
+      user: string;
+      inToken: string;
+      outToken: string;
+      amountPerTrade: number;
+      nTradesLeft: number;
+      minSlippage: number;
+      maxSlippage: number;
+      delay: number;
+      lastExecutionTime: number;
+      platformWallet: string;
+      platformFeeBps: number;
+    };
+  };
 }

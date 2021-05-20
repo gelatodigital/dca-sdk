@@ -1,96 +1,238 @@
 import { gql } from "graphql-request";
 
 export const GET_ALL_ORDERS_BY_OWNER = gql`
-  query getOrdersByOwner($owner: String) {
-    orders(first: 1000, where: { owner: $owner }) {
+  query getAllOrdersByOwner($owner: String!) {
+    trades(
+      where: { user: $owner }
+      orderBy: submissionDate
+      orderDirection: desc
+      first: 1000
+    ) {
       id
-      owner
-      inputToken
-      outputToken
-      inputAmount
-      minReturn
-      bought
+      user
       status
-      cancelledTxHash
-      executedTxHash
-      updatedAt
-      secret
+      submissionDate
+      submissionHash
+      estExecutionDate
+      executionDate
+      executionHash
+      amountReceived
+      executor
+      executorFee
+      feeToken
+      inToken
+      outToken
+      amount
+      index
       witness
+      cycleWrapper {
+        id
+        status
+        startDate
+        numTrades
+        cycle {
+          user
+          inToken
+          outToken
+          amountPerTrade
+          nTradesLeft
+          minSlippage
+          maxSlippage
+          delay
+          lastExecutionTime
+          platformWallet
+          platformFeeBps
+        }
+      }
     }
   }
 `;
 
 export const GET_ALL_OPEN_ORDERS_BY_OWNER = gql`
-  query getOpenOrdersByOwner($owner: String) {
-    orders(first: 1000, where: { owner: $owner, status: open }) {
+  query getOpenOrdersByOwner($owner: String!) {
+    trades(
+      where: { user: $owner, status: awaitingExec }
+      orderBy: submissionDate
+      orderDirection: desc
+      first: 1000
+    ) {
       id
-      owner
-      inputToken
-      outputToken
-      inputAmount
-      minReturn
-      bought
+      user
       status
-      updatedAt
-      secret
+      submissionDate
+      submissionHash
+      estExecutionDate
+      executionDate
+      executionHash
+      amountReceived
+      executor
+      executorFee
+      feeToken
+      inToken
+      outToken
+      amount
+      index
       witness
+      cycleWrapper {
+        id
+        status
+        startDate
+        numTrades
+        cycle {
+          user
+          inToken
+          outToken
+          amountPerTrade
+          nTradesLeft
+          minSlippage
+          maxSlippage
+          delay
+          lastExecutionTime
+          platformWallet
+          platformFeeBps
+        }
+      }
     }
   }
 `;
 
 export const GET_ALL_PAST_ORDERS_BY_OWNER = gql`
   query getPastOrdersByOwner($owner: String) {
-    orders(first: 1000, where: { owner: $owner, status_not: open }) {
+    trades(
+      where: { user: $owner, status_not: awaitingExec }
+      orderBy: submissionDate
+      orderDirection: desc
+    ) {
       id
-      owner
-      inputToken
-      outputToken
-      inputAmount
-      minReturn
-      bought
+      user
       status
-      cancelledTxHash
-      executedTxHash
-      updatedAt
-      secret
+      submissionDate
+      submissionHash
+      estExecutionDate
+      executionDate
+      executionHash
+      amountReceived
+      executor
+      executorFee
+      feeToken
+      inToken
+      outToken
+      amount
+      index
       witness
+      cycleWrapper {
+        id
+        status
+        startDate
+        numTrades
+        cycle {
+          user
+          inToken
+          outToken
+          amountPerTrade
+          nTradesLeft
+          minSlippage
+          maxSlippage
+          delay
+          lastExecutionTime
+          platformWallet
+          platformFeeBps
+        }
+      }
     }
   }
 `;
 
 export const GET_ALL_EXECUTED_ORDERS_BY_OWNER = gql`
-  query getExecutedOrdersByOwner($owner: String) {
-    orders(first: 1000, where: { owner: $owner, status: executed }) {
+  query getPastOrdersByOwner($owner: String) {
+    trades(
+      where: { user: $owner, status: execSuccess }
+      orderBy: submissionDate
+      orderDirection: desc
+    ) {
       id
-      owner
-      inputToken
-      outputToken
-      inputAmount
-      minReturn
-      bought
+      user
       status
-      executedTxHash
-      updatedAt
-      secret
+      submissionDate
+      submissionHash
+      estExecutionDate
+      executionDate
+      executionHash
+      amountReceived
+      executor
+      executorFee
+      feeToken
+      inToken
+      outToken
+      amount
+      index
       witness
+      cycleWrapper {
+        id
+        status
+        startDate
+        numTrades
+        cycle {
+          user
+          inToken
+          outToken
+          amountPerTrade
+          nTradesLeft
+          minSlippage
+          maxSlippage
+          delay
+          lastExecutionTime
+          platformWallet
+          platformFeeBps
+        }
+      }
     }
   }
 `;
 
 export const GET_ALL_CANCELLED_ORDERS_BY_OWNER = gql`
-  query getCancelledOrdersByOwner($owner: String) {
-    orders(first: 1000, where: { owner: $owner, status: cancelled }) {
+  query getCancelledOrdersByOwher($owner: String) {
+    trades(
+      where: { user: $owner, status: cancelled }
+      orderBy: submissionDate
+      orderDirection: desc
+    ) {
       id
-      owner
-      inputToken
-      outputToken
-      inputAmount
-      minReturn
+      user
       status
-      cancelledTxHash
-      updatedAt
-      secret
+      submissionDate
+      submissionHash
+      estExecutionDate
+      executionDate
+      executionHash
+      amountReceived
+      executor
+      executorFee
+      feeToken
+      inToken
+      outToken
+      amount
+      index
       witness
+      cycleWrapper {
+        id
+        status
+        startDate
+        numTrades
+        cycle {
+          user
+          inToken
+          outToken
+          amountPerTrade
+          nTradesLeft
+          minSlippage
+          maxSlippage
+          delay
+          lastExecutionTime
+          platformWallet
+          platformFeeBps
+        }
+      }
     }
   }
 `;
