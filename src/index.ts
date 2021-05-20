@@ -31,30 +31,6 @@ import {
 
 //#region Limit Orders Submission
 
-export const getAllPlacementData = async (
-  inToken: string,
-  outToken: string,
-  amountPerTrade: BigNumber,
-  numTrades: BigNumber,
-  delay: BigNumber,
-  platformWallet: string,
-  platformFeeBps: BigNumber,
-  minSlippage: BigNumber,
-  maxSlippage: BigNumber
-) => {
-  const order = createOrder(
-    inToken,
-    outToken,
-    amountPerTrade,
-    numTrades,
-    delay,
-    platformWallet,
-    platformFeeBps,
-    minSlippage,
-    maxSlippage
-  );
-};
-
 export const createOrder = (
   inToken: string,
   outToken: string,
