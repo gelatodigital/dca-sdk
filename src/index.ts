@@ -1,4 +1,5 @@
 import { TransactionResponse } from "@ethersproject/abstract-provider";
+import GELATO_TOKEN_LIST from "@gelatonetwork/default-token-list";
 import {
   BigNumber,
   constants,
@@ -10,7 +11,7 @@ import {
 import { DEXs, ETH_ADDRESS, WETH_ADDRESS } from "./constants";
 import { GelatoDca } from "./contracts/types";
 import { getGelatoDca } from "./gelatoDca";
-import { getAllowance, getMinAmountOut } from "./helpers";
+import { getAllowance, getMinAmountOut, saveOrder } from "./helpers";
 import {
   getCancelledOrders,
   getExecutedOrders,
@@ -19,6 +20,7 @@ import {
   getPastOrders,
 } from "./query/orders";
 import {
+  LocalOrder,
   Order,
   OrderCycle,
   OrderSubmission,
@@ -28,6 +30,30 @@ import {
 } from "./types";
 
 //#region Limit Orders Submission
+
+export const getAllPlacementData = async (
+  inToken: string,
+  outToken: string,
+  amountPerTrade: BigNumber,
+  numTrades: BigNumber,
+  delay: BigNumber,
+  platformWallet: string,
+  platformFeeBps: BigNumber,
+  minSlippage: BigNumber,
+  maxSlippage: BigNumber
+) => {
+  const order = createOrder(
+    inToken,
+    outToken,
+    amountPerTrade,
+    numTrades,
+    delay,
+    platformWallet,
+    platformFeeBps,
+    minSlippage,
+    maxSlippage
+  );
+};
 
 export const createOrder = (
   inToken: string,
@@ -55,33 +81,11 @@ export const createOrder = (
 
 // Convention ETH_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE
 export const getDcaOrderPayload = async (
-  inToken: string,
-  outToken: string,
-  amountPerTrade: BigNumber,
-  numTrades: BigNumber,
-  delay: BigNumber,
-  platformWallet: string,
-  platformFeeBps: BigNumber,
-  minSlippage: BigNumber,
-  maxSlippage: BigNumber,
+  order: OrderSubmission,
   slippage: BigNumber,
   signer: Signer
 ): Promise<TransactionData> => {
-  return (
-    await getDcaOrderPayloadWithSecret(
-      inToken,
-      outToken,
-      amountPerTrade,
-      numTrades,
-      delay,
-      platformWallet,
-      platformFeeBps,
-      minSlippage,
-      maxSlippage,
-      slippage,
-      signer
-    )
-  ).txData;
+  return (await getDcaOrderPayloadWithSecret(order, slippage, signer)).txData;
 };
 
 export const getWitnessAndSecret = (): WitnessAndSecret => {
@@ -95,31 +99,11 @@ export const getWitnessAndSecret = (): WitnessAndSecret => {
 };
 
 export const getDcaOrderPayloadWithSecret = async (
-  inToken: string,
-  outToken: string,
-  amountPerTrade: BigNumber,
-  numTrades: BigNumber,
-  delay: BigNumber,
-  platformWallet: string,
-  platformFeeBps: BigNumber,
-  minSlippage: BigNumber,
-  maxSlippage: BigNumber,
+  order: OrderSubmission,
   slippage: BigNumber,
   signer: Signer
 ): Promise<TransactionDataWithSecret> => {
   const { secret, witness } = getWitnessAndSecret();
-
-  const order = createOrder(
-    inToken,
-    outToken,
-    amountPerTrade,
-    numTrades,
-    delay,
-    platformWallet,
-    platformFeeBps,
-    minSlippage,
-    maxSlippage
-  );
 
   const gelatoDca = await getGelatoDca(signer);
 
@@ -178,6 +162,30 @@ export const getTxData = async (
       throw new TypeError("Insufficient GelatoDCA allowance");
   }
 
+  const signerChainId = await signer.getChainId();
+
+  const tokenList = getDcaTokenList().tokens.filter(({ chainId }) =>
+    signerChainId === 1 || signerChainId === 3 ? chainId === signerChainId : 1
+  );
+
+  let inTokenIncluded = false;
+  let outTokenIncluded = false;
+  tokenList.forEach((token) => {
+    if (
+      utils.getAddress(token.address) == utils.getAddress(order.inToken) ||
+      utils.getAddress(order.inToken) == utils.getAddress(ETH_ADDRESS)
+    )
+      inTokenIncluded = true;
+
+    if (
+      utils.getAddress(token.address) == utils.getAddress(order.outToken) ||
+      utils.getAddress(order.outToken) == utils.getAddress(ETH_ADDRESS)
+    )
+      outTokenIncluded = true;
+  });
+  if (!inTokenIncluded) throw new TypeError("In Token not in DCA Token List");
+  if (!outTokenIncluded) throw new TypeError("Out Token not in DCA Token List");
+
   const sigHash = gelatoDca.interface.getSighash("submitAndExec");
 
   const { minAmountOut, path } = await getMinAmountOut(
@@ -229,33 +237,13 @@ export const getTxData = async (
 };
 
 export const placeDcaOrder = async (
-  inToken: string,
-  outToken: string,
-  amountPerTrade: BigNumber,
-  numTrades: BigNumber,
-  delay: BigNumber,
-  platformWallet: string,
-  platformFeeBps: BigNumber,
-  minSlippage: BigNumber,
-  maxSlippage: BigNumber,
+  order: OrderSubmission,
   slippage: BigNumber,
   signer: Signer
 ): Promise<TransactionResponse> => {
   if (!signer.provider) throw new TypeError("Provider undefined");
 
-  const txData = await getDcaOrderPayloadWithSecret(
-    inToken,
-    outToken,
-    amountPerTrade,
-    numTrades,
-    delay,
-    platformWallet,
-    platformFeeBps,
-    minSlippage,
-    maxSlippage,
-    slippage,
-    signer
-  );
+  const txData = await getDcaOrderPayloadWithSecret(order, slippage, signer);
 
   return signer.sendTransaction({
     to: txData.txData.to,
@@ -322,6 +310,10 @@ export const getUniswapMinAmountOut = async (
 
 //#endregion Get MinAmountOut from Uniswap v2
 
+export const getDcaTokenList = () => {
+  return GELATO_TOKEN_LIST;
+};
+
 //#region Get All Orders
 
 // available on mainnet (chainId 1) and ropsten (chainId 3)
@@ -361,3 +353,52 @@ export const getAllCancelledOrders = async (
   return getCancelledOrders(account, chainID);
 };
 //#endregion Get All Orders
+
+export const getOrdersArray = (
+  order: OrderSubmission,
+  user: string,
+  witness: string,
+  submissionHash: string,
+  storeInLocalStorage: boolean,
+  chainId: number
+): LocalOrder[] => {
+  const submissionDate = Math.floor(Date.now() / 1000).toString();
+  const orders = [];
+  for (let i = 0; i < parseInt(order.numTrades.toString()); i++) {
+    let estimatedExecutionDate;
+    if (i === 0) {
+      estimatedExecutionDate = Math.floor(Date.now() / 1000);
+    } else {
+      estimatedExecutionDate = (
+        parseInt(order.delay.toString()) * i +
+        Math.floor(Date.now() / 1000)
+      ).toString();
+    }
+    const nTradesLeft = order.numTrades
+      .sub(BigNumber.from(i.toString()))
+      .toString();
+    const index = (parseInt(order.numTrades.toString()) - i).toString();
+    const witnessHash = witness + i.toString();
+    const localOrder = {
+      status: "awaitingExec",
+      submissionDate: submissionDate,
+      submissionHash: submissionHash.toLowerCase(),
+      estExecutionDate: estimatedExecutionDate.toString(),
+      amount: order.amountPerTrade.toString(),
+      inToken: order.inToken.toLowerCase(),
+      outToken: order.outToken.toLowerCase(),
+      minSlippage: order.minSlippage.toString(),
+      maxSlippage: order.maxSlippage.toString(),
+      index: index,
+      witness: witnessHash,
+      cycleWrapper: {
+        cycle: {
+          nTradesLeft: nTradesLeft,
+        },
+      },
+    };
+    if (storeInLocalStorage) saveOrder(user, localOrder, chainId);
+    orders.push(localOrder);
+  }
+  return orders;
+};

@@ -82,3 +82,22 @@ export interface Order {
     };
   };
 }
+
+export interface LocalOrder {
+  status: string;
+  submissionDate: string;
+  submissionHash: string;
+  estExecutionDate: string;
+  amount: string;
+  inToken: string;
+  outToken: string;
+  minSlippage: string;
+  maxSlippage: string;
+  index: string;
+  witness: string;
+  cycleWrapper: {
+    cycle: {
+      nTradesLeft: string;
+    };
+  };
+}

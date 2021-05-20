@@ -11,6 +11,7 @@ import {
   getDcaOrderPayloadWithSecret,
   placeDcaOrder,
 } from "../src/index";
+import { OrderSubmission } from "../src/types";
 
 const ETH = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 const DAI = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
@@ -34,6 +35,8 @@ describe("Test DCA Lib", async function () {
   let maxSlippage: BigNumber;
   let slippage: BigNumber;
   let gelatoDca: GelatoDca;
+  let orderOne: OrderSubmission;
+  let orderTwo: OrderSubmission;
 
   if (!network.config.chainId) throw new Error("No Chain Id");
   const chainId = network.config.chainId;
@@ -55,6 +58,30 @@ describe("Test DCA Lib", async function () {
     minSlippage = BigNumber.from("50");
     maxSlippage = BigNumber.from("1000");
     slippage = BigNumber.from("100");
+
+    orderOne = {
+      inToken: inTokenAddress,
+      outToken: outTokenAddress,
+      amountPerTrade: amountPerTrade,
+      numTrades: numTrades,
+      delay: delay,
+      platformFeeBps: platformBps,
+      platformWallet: platformWallet,
+      minSlippage: minSlippage,
+      maxSlippage: maxSlippage,
+    };
+
+    orderTwo = {
+      inToken: outTokenAddress,
+      outToken: inTokenAddress,
+      amountPerTrade: amountPerTrade,
+      numTrades: numTrades,
+      delay: delay,
+      platformFeeBps: platformBps,
+      platformWallet: platformWallet,
+      minSlippage: minSlippage,
+      maxSlippage: maxSlippage,
+    };
   });
 
   it("#1: Eth to DAI Task Submission should work", async function () {
@@ -73,40 +100,15 @@ describe("Test DCA Lib", async function () {
       provider?: providers.Provider
     */
 
-    await expect(
-      getDcaOrderPayload(
-        inTokenAddress,
-        outTokenAddress,
-        amountPerTrade,
-        numTrades,
-        delay,
-        platformWallet,
-        platformBps,
-        minSlippage,
-        maxSlippage,
-        slippage,
-        userWallet
-      )
-    ).to.not.throw;
+    await expect(getDcaOrderPayload(orderOne, slippage, userWallet)).to.not
+      .throw;
   });
 
   it("#2: DAI to UNI Task Submission should work", async function () {
     const err = new TypeError("Insufficient GelatoDCA allowance");
 
     try {
-      await getDcaOrderPayload(
-        outTokenAddress,
-        inTokenAddress,
-        amountPerTrade,
-        numTrades,
-        delay,
-        platformWallet,
-        platformBps,
-        minSlippage,
-        maxSlippage,
-        slippage,
-        userWallet
-      );
+      await getDcaOrderPayload(orderTwo, slippage, userWallet);
       throw err;
     } catch (err) {
       console.log("Expected Error");
@@ -117,15 +119,7 @@ describe("Test DCA Lib", async function () {
     // await outToken.approve(gelatoDca.address, amountPerTrade.mul(numTrades));
 
     const txData = await getDcaOrderPayloadWithSecret(
-      inTokenAddress,
-      outTokenAddress,
-      amountPerTrade,
-      numTrades,
-      delay,
-      platformWallet,
-      platformBps,
-      minSlippage,
-      maxSlippage,
+      orderOne,
       slippage,
       userWallet
     );
@@ -193,21 +187,10 @@ describe("Test DCA Lib", async function () {
   it("#4: Place and cancel with state writing functions", async function () {
     // await outToken.approve(gelatoDca.address, amountPerTrade.mul(numTrades));
 
-    await expect(
-      placeDcaOrder(
-        inTokenAddress,
-        outTokenAddress,
-        amountPerTrade,
-        numTrades,
-        delay,
-        platformWallet,
-        platformBps,
-        minSlippage,
-        maxSlippage,
-        slippage,
-        userWallet
-      )
-    ).to.emit(gelatoDca, "LogTaskSubmitted");
+    await expect(placeDcaOrder(orderOne, slippage, userWallet)).to.emit(
+      gelatoDca,
+      "LogTaskSubmitted"
+    );
 
     const block = await userWallet.provider?.getBlock("latest");
     if (!block) throw new TypeError("No block found");

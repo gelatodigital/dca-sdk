@@ -9,6 +9,7 @@ import {
   TradeType,
 } from "@uniswap/sdk";
 import { BigNumber, constants, ethers, Signer, utils } from "ethers";
+import * as ls from "local-storage";
 import { ETH_ADDRESS, WETH } from "./constants";
 import {
   Erc20,
@@ -16,6 +17,7 @@ import {
   Erc20Bytes32__factory,
   Erc20__factory,
 } from "./contracts/types";
+import { LocalOrder } from "./types";
 
 // @Dev use Multi Hop to get optimized exchange rate
 export const getMinAmountOut = async (
@@ -221,4 +223,51 @@ export const getErc20Bytes = (
   }
 
   return Erc20Bytes32__factory.connect(address, signer);
+};
+
+// ///
+// Local storage
+// ///
+const LS_DCA_ORDERS = "dca_orders_";
+
+const lsKey = (key: string, account: string, chainId: number) => {
+  return key + account.toString() + chainId;
+};
+
+export const saveOrder = (
+  account: string,
+  orderData: LocalOrder,
+  chainId: number
+): void => {
+  if (!account) return;
+
+  const key = lsKey(LS_DCA_ORDERS, account, chainId);
+  const prev = ls.get(key) as any;
+
+  if (prev === null) {
+    ls.set(key, [orderData]);
+  } else {
+    if (prev.indexOf(orderData) === -1) {
+      prev.push(orderData);
+      ls.set(key, prev);
+    }
+  }
+};
+
+export const getSavedOrders = (
+  account: string,
+  chainId: number
+): LocalOrder[] => {
+  if (!account) return [];
+
+  console.log(
+    "Loading saved orders from storage location",
+    account,
+    lsKey(LS_DCA_ORDERS, account, chainId)
+  );
+  const allOrders = ls.get(
+    lsKey(LS_DCA_ORDERS, account, chainId)
+  ) as LocalOrder[];
+
+  return allOrders == null ? [] : allOrders;
 };
