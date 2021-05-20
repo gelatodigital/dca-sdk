@@ -216,16 +216,21 @@ export const placeDcaOrder = async (
   order: OrderSubmission,
   slippage: BigNumber,
   signer: Signer
-): Promise<TransactionResponse> => {
+): Promise<{ txData: TransactionDataWithSecret; tx: TransactionResponse }> => {
   if (!signer.provider) throw new TypeError("Provider undefined");
 
   const txData = await getDcaOrderPayloadWithSecret(order, slippage, signer);
 
-  return signer.sendTransaction({
+  const tx = await signer.sendTransaction({
     to: txData.txData.to,
     data: txData.txData.data,
     value: txData.txData.value,
   });
+
+  return {
+    txData: txData,
+    tx: tx,
+  };
 };
 
 //#endregion Limit Orders Submission

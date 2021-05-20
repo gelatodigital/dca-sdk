@@ -187,10 +187,8 @@ describe("Test DCA Lib", async function () {
   it("#4: Place and cancel with state writing functions", async function () {
     // await outToken.approve(gelatoDca.address, amountPerTrade.mul(numTrades));
 
-    await expect(placeDcaOrder(orderOne, slippage, userWallet)).to.emit(
-      gelatoDca,
-      "LogTaskSubmitted"
-    );
+    const { tx } = await placeDcaOrder(orderOne, slippage, userWallet);
+    await expect(tx).to.emit(gelatoDca, "LogTaskSubmitted");
 
     const block = await userWallet.provider?.getBlock("latest");
     if (!block) throw new TypeError("No block found");
