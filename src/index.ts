@@ -5,7 +5,7 @@ import {
   ContractTransaction,
   Signer,
   utils,
-  Wallet,
+  Wallet
 } from "ethers";
 import { DEXs, ETH_ADDRESS, WETH_ADDRESS } from "./constants";
 import { GelatoDca } from "./contracts/types";
@@ -16,7 +16,7 @@ import {
   getExecutedOrders,
   getOpenOrders,
   getOrders,
-  getPastOrders,
+  getPastOrders
 } from "./query/orders";
 import {
   Order,
@@ -24,7 +24,7 @@ import {
   OrderSubmission,
   TransactionData,
   TransactionDataWithSecret,
-  WitnessAndSecret,
+  WitnessAndSecret
 } from "./types";
 
 //#region Limit Orders Submission
@@ -302,6 +302,26 @@ export const getCancelLimitOrderPayload = async (
 
 //#endregion Limit Orders Cancellation
 
+//#region Get MinAmountOut from Uniswap v2
+
+export const getUniswapMinAmountOut = async (
+  inTokenAddress: string,
+  outTokenAddress: string,
+  inAmount: BigNumber,
+  slippage: BigNumber = BigNumber.from("100"),
+  signer: Signer
+): Promise<{ minAmountOut: BigNumber; path: string[] }> => {
+  return getMinAmountOut(
+    inTokenAddress,
+    outTokenAddress,
+    inAmount,
+    slippage,
+    signer
+  );
+};
+
+//#endregion Get MinAmountOut from Uniswap v2
+
 //#region Get All Orders
 
 // available on mainnet (chainId 1) and ropsten (chainId 3)
@@ -340,5 +360,4 @@ export const getAllCancelledOrders = async (
 ): Promise<Order[]> => {
   return getCancelledOrders(account, chainID);
 };
-
 //#endregion Get All Orders
