@@ -283,20 +283,20 @@ export const isOrderLargeEnough = async (
 ): Promise<{ warning: boolean; minOrderSize: BigNumber }> => {
   let minOrderSize: BigNumber;
 
-  const { minAmountOut: minOrderSizeTrade } = await getMinAmountOut(
-    ETH_ADDRESS,
-    inToken,
-    orderThresholdInEth,
-    constants.Zero,
-    signer
-  );
   if (
     utils.getAddress(inToken) === utils.getAddress(ETH_ADDRESS) &&
     orderThresholdInEth
   ) {
     minOrderSize = orderThresholdInEth;
   } else {
-    minOrderSize = minOrderSizeTrade;
+    const { minAmountOut } = await getMinAmountOut(
+      ETH_ADDRESS,
+      inToken,
+      orderThresholdInEth,
+      constants.Zero,
+      signer
+    );
+    minOrderSize = minAmountOut;
   }
 
   const numTradesIsZero = numTrades.eq(constants.Zero) ? true : false;
