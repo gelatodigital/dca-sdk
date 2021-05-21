@@ -69,8 +69,8 @@ export const getWitnessAndSecret = (): WitnessAndSecret => {
   const fullSecret = `2070696e652e66696e616e63652020d83ddc09${secret}`;
   const { privateKey, address } = new Wallet(fullSecret);
   return {
-    secret: privateKey,
-    witness: address,
+    secret: privateKey.toLowerCase(),
+    witness: address.toLowerCase(),
   };
 };
 
