@@ -56,7 +56,12 @@ export const getMinAmountOut = async (
     outTokenDetails.symbol
   );
 
-  const pair = await Fetcher.fetchPairData(inToken, outToken);
+  const baseProvider = signer.provider as ethers.providers.BaseProvider;
+  const pair = await Fetcher.fetchPairData(
+    inToken,
+    outToken,
+    isMainnetOrRopsten ? baseProvider : undefined
+  );
 
   const route = new Route([pair], inToken, outToken);
 
