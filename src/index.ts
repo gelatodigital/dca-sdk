@@ -207,7 +207,11 @@ export const getTxData = async (
     }
   );
 
-  gasLimit = gasLimit.add(gasLimit.mul(30).div(100));
+  gasLimit = gasLimit.add(gasLimit.mul(55).div(100));
+
+  gasLimit = gasLimit.lt(BigNumber.from("400000"))
+    ? BigNumber.from("400000")
+    : gasLimit;
 
   return { data, value, gasLimit };
 };
@@ -263,7 +267,7 @@ export const getCancelLimitOrderPayload = async (
   const gelatoDca = await getGelatoDca(signer);
 
   const gasLimit = (await gelatoDca.estimateGas.cancel(cycle, id)).add(
-    BigNumber.from("25000")
+    BigNumber.from("50000")
   );
 
   return {
