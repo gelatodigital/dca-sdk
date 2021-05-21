@@ -9,7 +9,8 @@ import {
   getCancelLimitOrderPayload,
   getDcaOrderPayload,
   getDcaOrderPayloadWithSecret,
-  placeDcaOrder,
+  getOrdersArray,
+  placeDcaOrder
 } from "../src/index";
 import { OrderSubmission } from "../src/types";
 
@@ -241,5 +242,22 @@ describe("Test DCA Lib", async function () {
         userWallet
       )
     ).to.emit(gelatoDca, "LogTaskCancelled");
+  });
+
+  it("#5: getOrdersArray test", async function () {
+    // await outToken.approve(gelatoDca.address, amountPerTrade.mul(numTrades));
+
+    const { tx, txData } = await placeDcaOrder(
+      orderOne,
+      slippage,
+      ethers.utils.parseUnits("10", "gwei"),
+      userWallet
+    );
+    await expect(tx).to.emit(gelatoDca, "LogTaskSubmitted");
+
+    const orderArray = getOrdersArray(orderOne, await userWallet.getAddress(), txData.witness, tx.hash)
+
+    expect(orderArray.length).to.be.eq(orderOne.numTrades)
+
   });
 });
