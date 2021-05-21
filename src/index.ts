@@ -230,6 +230,7 @@ export const placeDcaOrder = async (
     to: txData.txData.to,
     data: txData.txData.data,
     value: txData.txData.value,
+    gasLimit: txData.txData.gasLimit,
     gasPrice: gasPrice,
   });
 
@@ -254,8 +255,13 @@ export const cancelDcaOrder = async (
 
   const gelatoDca = await getGelatoDca(signer);
 
+  const gasLimit = await gelatoDca
+    .connect(signer)
+    .estimateGas.cancel(cycle, id);
+
   return gelatoDca.connect(signer).cancel(cycle, id, {
     gasPrice: gasPrice,
+    gasLimit: gasLimit.add(gasLimit.mul(40).div(100)),
   });
 };
 
