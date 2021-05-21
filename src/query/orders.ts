@@ -17,8 +17,8 @@ export const getOrders = async (
     owner: owner.toLowerCase(),
   });
   if (!data) throw new Error("getOrders: NO DATA");
-  if (!data.orders) throw new Error("getOrders: NO ORDERS FIELD");
-  return data.orders;
+  if (!data.trades) throw new Error("getOrders: NO ORDERS FIELD");
+  return data.trades;
 };
 
 export const getOpenOrders = async (
@@ -33,8 +33,8 @@ export const getOpenOrders = async (
     }
   );
   if (!data) throw new Error("getOpenOrders: NO DATA");
-  if (!data.orders) throw new Error("getOpenOrders: NO ORDERS FIELD");
-  return data.orders;
+  if (!data.trades) throw new Error("getOpenOrders: NO ORDERS FIELD");
+  return data.trades;
 };
 
 export const getPastOrders = async (
@@ -49,8 +49,8 @@ export const getPastOrders = async (
     }
   );
   if (!data) throw new Error("getPastOrders: NO DATA");
-  if (!data.orders) throw new Error("getPastOrders: NO ORDERS FIELD");
-  return data.orders;
+  if (!data.trades) throw new Error("getPastOrders: NO ORDERS FIELD");
+  return data.trades;
 };
 
 export const getExecutedOrders = async (
@@ -65,8 +65,8 @@ export const getExecutedOrders = async (
     }
   );
   if (!data) throw new Error("getExecutedOrders: NO DATA");
-  if (!data.orders) throw new Error("getExecutedOrders: NO ORDERS FIELD");
-  return data.orders;
+  if (!data.trades) throw new Error("getExecutedOrders: NO ORDERS FIELD");
+  return data.trades;
 };
 
 export const getCancelledOrders = async (
@@ -81,6 +81,6 @@ export const getCancelledOrders = async (
     }
   );
   if (!data) throw new Error("getCancelledOrders: NO DATA");
-  if (!data.orders) throw new Error("getCancelledOrders: NO ORDERS FIELD");
-  return data.orders;
+  if (!data.trades) throw new Error("getCancelledOrders: NO ORDERS FIELD");
+  return data.trades;
 };

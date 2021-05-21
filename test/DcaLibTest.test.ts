@@ -10,7 +10,7 @@ import {
   getDcaOrderPayload,
   getDcaOrderPayloadWithSecret,
   getOrdersArray,
-  placeDcaOrder
+  placeDcaOrder,
 } from "../src/index";
 import { OrderSubmission } from "../src/types";
 
@@ -255,9 +255,13 @@ describe("Test DCA Lib", async function () {
     );
     await expect(tx).to.emit(gelatoDca, "LogTaskSubmitted");
 
-    const orderArray = getOrdersArray(orderOne, await userWallet.getAddress(), txData.witness, tx.hash)
+    const orderArray = getOrdersArray(
+      orderOne,
+      await userWallet.getAddress(),
+      txData.witness,
+      tx.hash
+    );
 
-    expect(orderArray.length).to.be.eq(orderOne.numTrades)
-
+    expect(orderArray.length).to.be.eq(orderOne.numTrades);
   });
 });
