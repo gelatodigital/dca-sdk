@@ -269,3 +269,45 @@ export const getSavedOrders = (
 
   return allOrders == null ? [] : allOrders;
 };
+
+// Math
+
+// Calc minimum order size
+
+export const isOrderLargeEnough = async (
+  inToken: string,
+  inAmount: BigNumber,
+  numTrades: BigNumber,
+  signer: Signer,
+  orderThresholdInEth: BigNumber
+): Promise<{ warning: boolean; minOrderSize: BigNumber }> => {
+  let minOrderSize: BigNumber;
+
+  const { minAmountOut: minOrderSizeTrade } = await getMinAmountOut(
+    ETH_ADDRESS,
+    inToken,
+    orderThresholdInEth,
+    constants.Zero,
+    signer
+  );
+  if (
+    utils.getAddress(inToken) === utils.getAddress(ETH_ADDRESS) &&
+    orderThresholdInEth
+  ) {
+    minOrderSize = orderThresholdInEth;
+  } else {
+    minOrderSize = minOrderSizeTrade;
+  }
+
+  const numTradesIsZero = numTrades.eq(constants.Zero) ? true : false;
+  const executionRateWarning =
+    !numTradesIsZero &&
+    inAmount &&
+    numTrades &&
+    minOrderSize &&
+    inAmount.div(numTrades).lt(minOrderSize)
+      ? true
+      : false;
+
+  return { warning: executionRateWarning, minOrderSize: minOrderSize };
+};

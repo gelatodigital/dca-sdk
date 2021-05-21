@@ -11,7 +11,12 @@ import {
 import { DEXs, ETH_ADDRESS, WETH_ADDRESS } from "./constants";
 import { GelatoDca } from "./contracts/types";
 import { getGelatoDca } from "./gelatoDca";
-import { getAllowance, getMinAmountOut, saveOrder } from "./helpers";
+import {
+  getAllowance,
+  getMinAmountOut,
+  isOrderLargeEnough,
+  saveOrder,
+} from "./helpers";
 import {
   getCancelledOrders,
   getExecutedOrders,
@@ -402,4 +407,20 @@ export const storeOrdersInLocalStorage = (
   orders.forEach((localOrder) => {
     saveOrder(user, localOrder, chainId);
   });
+};
+
+export const getMinOrderRequirements = async (
+  inToken: string,
+  inAmount: BigNumber,
+  numTrades: BigNumber,
+  signer: Signer,
+  orderThresholdInEth = BigNumber.from("200000000000000000")
+): Promise<{ warning: boolean; minOrderSize: BigNumber }> => {
+  return await isOrderLargeEnough(
+    inToken,
+    inAmount,
+    numTrades,
+    signer,
+    orderThresholdInEth
+  );
 };
