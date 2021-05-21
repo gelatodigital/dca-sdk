@@ -282,6 +282,9 @@ export const isOrderLargeEnough = async (
   orderThresholdInEth: BigNumber
 ): Promise<{ warning: boolean; minOrderSize: BigNumber }> => {
   let minOrderSize: BigNumber;
+  const chainId = await signer.getChainId();
+  if (chainId !== 1 && chainId !== 3)
+    throw new Error("Only Mainnet and ropsten");
 
   if (
     utils.getAddress(inToken) === utils.getAddress(ETH_ADDRESS) &&
@@ -289,6 +292,13 @@ export const isOrderLargeEnough = async (
   ) {
     minOrderSize = orderThresholdInEth;
   } else {
+    if (
+      utils.getAddress(inToken) === utils.getAddress(ETH_ADDRESS) ||
+      utils.getAddress(inToken) === utils.getAddress(WETH[chainId].address)
+    ) {
+      return { warning: true, minOrderSize: BigNumber.from("0") };
+    }
+
     const { minAmountOut } = await getMinAmountOut(
       ETH_ADDRESS,
       inToken,
