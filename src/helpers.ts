@@ -31,10 +31,6 @@ export const getMinAmountOut = async (
   const isMainnetOrRopsten = chainId === 1 || chainId == 3;
   chainId = isMainnetOrRopsten ? chainId : 1;
 
-  const providerToUse = isMainnetOrRopsten
-    ? signer
-    : await ethers.providers.getDefaultProvider();
-
   const uniInTokenAddress =
     utils.getAddress(inTokenAddress) === utils.getAddress(ETH_ADDRESS)
       ? WETH[chainId].address
@@ -44,7 +40,7 @@ export const getMinAmountOut = async (
       ? WETH[chainId].address
       : outTokenAddress;
 
-  const inTokenDetails = await getToken(uniInTokenAddress, providerToUse);
+  const inTokenDetails = await getToken(uniInTokenAddress, signer);
   const inToken = new Token(
     chainId,
     uniInTokenAddress,
@@ -52,7 +48,7 @@ export const getMinAmountOut = async (
     inTokenDetails.symbol
   );
 
-  const outTokenDetails = await getToken(uniOutTokenAddress, providerToUse);
+  const outTokenDetails = await getToken(uniOutTokenAddress, signer);
   const outToken = new Token(
     chainId,
     uniOutTokenAddress,
@@ -95,7 +91,7 @@ export const getMinAmountOut = async (
 
 export const getToken = async (
   tokenAddress: string,
-  signer: ethers.Signer | ethers.providers.BaseProvider
+  signer: ethers.Signer
 ): Promise<{ name: string; symbol: string; decimals: number }> => {
   const name = await getTokenName(tokenAddress, signer);
   const symbol = await getTokenSymbol(tokenAddress, signer);
@@ -107,7 +103,7 @@ export const getToken = async (
 // get token name
 export async function getTokenName(
   tokenAddress: string,
-  signer: ethers.Signer | ethers.providers.BaseProvider
+  signer: ethers.Signer
 ): Promise<string> {
   if (!isAddress(tokenAddress)) {
     throw Error(`Invalid 'tokenAddress' parameter '${tokenAddress}'.`);
@@ -135,7 +131,7 @@ export async function getTokenName(
 // get token symbol
 export async function getTokenSymbol(
   tokenAddress: string,
-  signer: ethers.Signer | ethers.providers.BaseProvider
+  signer: ethers.Signer
 ): Promise<string> {
   if (!isAddress(tokenAddress)) {
     throw Error(`Invalid 'tokenAddress' parameter '${tokenAddress}'.`);
@@ -163,7 +159,7 @@ export async function getTokenSymbol(
 // get token decimals
 export async function getTokenDecimals(
   tokenAddress: string,
-  signer: ethers.Signer | ethers.providers.BaseProvider
+  signer: ethers.Signer
 ): Promise<number> {
   if (!isAddress(tokenAddress)) {
     throw Error(`Invalid 'tokenAddress' parameter '${tokenAddress}'.`);
@@ -189,7 +185,7 @@ export const getAllowance = async (
   tokenAddress: string,
   owner: string,
   spender: string,
-  signer: ethers.Signer | ethers.providers.BaseProvider
+  signer: ethers.Signer
 ): Promise<BigNumber> => {
   if (!isAddress(tokenAddress)) {
     throw Error(`Invalid 'tokenAddress' parameter '${tokenAddress}'.`);
@@ -203,10 +199,7 @@ export const getAllowance = async (
   return allowance;
 };
 
-export const getErc20 = (
-  address: string,
-  signer: ethers.Signer | ethers.providers.BaseProvider
-): Erc20 => {
+export const getErc20 = (address: string, signer: ethers.Signer): Erc20 => {
   if (!isAddress(address) || address === constants.AddressZero) {
     throw Error(`Invalid 'address' parameter '${address}'.`);
   }
@@ -216,7 +209,7 @@ export const getErc20 = (
 
 export const getErc20Bytes = (
   address: string,
-  signer: ethers.Signer | ethers.providers.BaseProvider
+  signer: ethers.Signer
 ): Erc20Bytes32 => {
   if (!isAddress(address) || address === constants.AddressZero) {
     throw Error(`Invalid 'address' parameter '${address}'.`);
