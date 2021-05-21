@@ -6,7 +6,7 @@ import {
   ContractTransaction,
   Signer,
   utils,
-  Wallet,
+  Wallet
 } from "ethers";
 import { DEXs, ETH_ADDRESS, WETH_ADDRESS } from "./constants";
 import { GelatoDca } from "./contracts/types";
@@ -17,7 +17,7 @@ import {
   getExecutedOrders,
   getOpenOrders,
   getOrders,
-  getPastOrders,
+  getPastOrders
 } from "./query/orders";
 import {
   LocalOrder,
@@ -26,7 +26,7 @@ import {
   OrderSubmission,
   TransactionData,
   TransactionDataWithSecret,
-  WitnessAndSecret,
+  WitnessAndSecret
 } from "./types";
 
 //#region Limit Orders Submission
@@ -368,9 +368,7 @@ export const getOrdersArray = (
         Math.floor(Date.now() / 1000)
       ).toString();
     }
-    const nTradesLeft = order.numTrades
-      .sub(BigNumber.from(i.toString()))
-      .toString();
+    const nTradesLeft = order.numTrades.sub(BigNumber.from("1")).toString();
     const index = (parseInt(order.numTrades.toString()) - i).toString();
     const witnessHash = witness + i.toString();
     const localOrder = {
